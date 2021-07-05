@@ -29,10 +29,16 @@ service 'auditd' do
     reload_command '/usr/libexec/initscripts/legacy-actions/auditd/reload'
     restart_command '/usr/libexec/initscripts/legacy-actions/auditd/restart'
   end
-  if platform_family?('rhel') && node['init_package'] == 'systemd' && node['platform_version'] >= '7.5'
+
+  if node['init_package'] == 'systemd' && \
+      (
+        (platform_family?('rhel') && node['platform_version'] >= '7.5') || \
+        (platform?('ubuntu') && node['platform_version'] >= '18.10')
+      )
     reload_command '/usr/sbin/service auditd reload'
     restart_command '/usr/sbin/service auditd restart'
   end
+
   supports [:start, :stop, :restart, :reload, :status]
   action :enable
 end
